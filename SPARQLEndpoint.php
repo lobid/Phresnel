@@ -19,7 +19,7 @@
  * along with Phresnel.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once(dirname(__FILE__) . '/lib/LibRDF/LibRDF.php');
+require_once(dirname(__FILE__) . '/lib/LibRDF/LibRDF/LibRDF.php');
 
 /**
  * The interface for a SPARQL endpoint

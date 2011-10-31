@@ -1,0 +1,6 @@
+[submodule "lib/KLogger"]
+	path = lib/KLogger
+	url = git@github.com:katzgrau/KLogger.git
+[submodule "lib/LibRDF"]
+	path = lib/LibRDF
+	url = git@github.com:literarymachine/LibRDF

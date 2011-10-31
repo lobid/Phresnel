@@ -19,7 +19,7 @@
  * along with Phresnel.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once(dirname(__FILE__) . '/lib/LibRDF/LibRDF.php');
+require_once(dirname(__FILE__) . '/lib/LibRDF/LibRDF/LibRDF.php');
 require_once(dirname(__FILE__) . '/lib/KLogger/src/KLogger.php');
 require_once("RemoteSPARQLEndpoint.php");
 require_once("LocalSPARQLEndpoint.php");
