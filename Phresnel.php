@@ -76,28 +76,37 @@ class Phresnel {
             "http://www.w3.org/ns/org#" => "org",
             );
 
-    public static function init($url, KLogger $logger) {
+    public static function init($conf, KLogger $logger) {
         self::$_logger = $logger;
-        $conf = new LibRDF_Model(new LibRDF_Storage());
-        $conf->loadStatementsFromURI(new LibRDF_Parser("turtle"), $url);
-        $epProp = new LibRDF_URINode("http://literarymachine.net/ontology/phresnel#endpoint");
-        $epNode = $conf->findStatements(null, $epProp, null)->current();
-        if (null !== $epNode) {
-            $epURL = $epNode->getObject();
-            $epURL = substr($epURL, 1, strlen($epURL) - 2);
-            self::$_endpoint = new remoteSPARQLEndpoint($epURL, $logger);
+        $setup = array();
+        if (!(is_array($conf))) {
+            $rdfconf = new LibRDF_Model(new LibRDF_Storage());
+            $rdfconf->loadStatementsFromURI(new LibRDF_Parser("turtle"), $conf);
+            $epProp = new LibRDF_URINode("http://literarymachine.net/ontology/phresnel#endpoint");
+            $epNode = $rdfconf->findStatements(null, $epProp, null)->current();
+            if (null !== $epNode) {
+                $epURL = $epNode->getObject();
+                $epURL = substr($epURL, 1, strlen($epURL) - 2);
+                $setup['endpoint'] = $epURL;
+            }
+            $lensProp = new LibRDF_URINode("http://literarymachine.net/ontology/phresnel#lenses");
+            $lensDef = $rdfconf->findStatements(null, $lensProp, null)->current();
+            $lensGraph = new LibRDF_Model(new LibRDF_Storage());
+            $setup["lensDef"] = substr($lensDef->getObject(), 1, strlen($lensDef->getObject()) - 2);
         } else {
-            $store = new LibRDF_Model(new LibRDF_Storage);
-            self::$_endpoint = new localSPARQLEndpoint($store, $logger);
+            $setup = $conf;
+        }
+        if (array_key_exists("endpoint", $setup)) {
+            self::$_endpoint = new RemoteSPARQLEndpoint($setup["endpoint"], $logger);
+        } else {
+            $model = new LibRDF_Model(new LibRDF_Storage);
+            self::$_endpoint = new LocalSPARQLEndpoint($model, $logger);
         }
         LibRDF_Serializer::setNamespaces(self::$_namespaces);
-        $lensProp = new LibRDF_URINode("http://literarymachine.net/ontology/phresnel#lenses");
-        $lensDef = $conf->findStatements(null, $lensProp, null)->current();
         $lensGraph = new LibRDF_Model(new LibRDF_Storage());
-        $lensDef = substr($lensDef->getObject(), 1, strlen($lensDef->getObject()) - 2);
-        $lensGraph->loadStatementsFromURI(new LibRDF_Parser("turtle"), $lensDef);
+        $lensGraph->loadStatementsFromURI(new LibRDF_Parser("turtle"), $setup["lensDef"]);
         self::$_lensGraph = $lensGraph;
-        self::$_lensGraphURI = $lensDef;
+        self::$_lensGraphURI = $setup["lensDef"];
     }
 
     /**
