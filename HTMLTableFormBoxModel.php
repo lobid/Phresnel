@@ -30,7 +30,7 @@ class HTMLTableFormBoxModel extends AbstractBoxModel {
      * @param  LibRDF_URINode $resource The resource to render a form for.
      * @return string
      */
-    public function render() {
+    protected function _render() {
         $rs = "<form method=\"POST\" action=\"\">";
         $rs .= $this->_form($this->_lens, $this->_resourceURI);
         $rs .= '<input type="submit" name="format" value="RDFa" />';

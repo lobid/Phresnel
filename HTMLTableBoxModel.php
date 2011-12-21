@@ -32,7 +32,7 @@ class HTMLTableBoxModel extends AbstractBoxModel {
      * 
      * @return TODO
      */
-    public function render() {
+    protected function _render() {
         if ($this->_resourceURI instanceof LibRDF_BlankNode) {
             $instances = $this->_data->findStatements(
                     null,

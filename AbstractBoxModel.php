@@ -28,7 +28,38 @@ abstract class AbstractBoxModel {
      */
     protected $_namespaces = array();
 
-    public abstract function render();
+    /**
+     * A chain of XSLT files to be executed
+     * on the renderes output.
+     *
+     * @var mixed  Defaults to array().
+     */
+    protected $_postTransformations = array();
+
+    protected abstract function _render();
+
+    /**
+     * Postprocess and return renderers output.
+     *
+     * @return string output
+     */
+    public function render() {
+        $raw = $this->_render();
+        // supressing warnings
+        @$output = DomDocument::loadXml($raw);
+        // non-valid xml-input, return as is
+        if (false === $output) return $raw;
+        foreach ($this->_postTransformations as $trans) {
+            // supressing warnings
+            @$trans = DomDocument::load($trans);
+            // non-valid xml-input, skip
+            if (false === $trans) continue;
+            $xslt = new XSLTProcessor();
+            $xslt->importStylesheet($trans);
+            $output = $xslt->transformToDoc($output);
+        }
+        return $output->saveXml($output->documentElement);
+    }
 
     /**
      * TODO: short description.
@@ -42,6 +73,16 @@ abstract class AbstractBoxModel {
         $this->_resourceURI = $lens->getResourceURI();
         $this->_data = $lens->getData();
         $this->_namespaces = Phresnel::$_namespaces;
+    }
+
+    /**
+     * TODO: short description.
+     * 
+     * @param  mixed  $trans 
+     * @return TODO
+     */
+    public function registerPostTransformation($trans) {
+        $this->_postTransformations[] = $trans;
     }
 
     /**
