@@ -89,6 +89,13 @@ class Lens {
     protected $_resourceURI = null;
 
     /**
+     * TODO: description.
+     * 
+     * @var mixed  Defaults to array(). 
+     */
+    protected $tmp = array();
+
+    /**
      * Constructor.
      *
      * @param  LibRDF_Model    $lensGraph Graph containing lens definitions.
@@ -161,8 +168,14 @@ class Lens {
      * @return void
      */
     protected function _checkBounds(LibRDF_Node $resourceURI, LibRDF_Node $lensURI) {
-        $lst = $this->_lensDef->getTarget($lensURI, new
-                LibRDF_URINode(FRESNEL."showProperties"));
+        // sublens with no properties to show are
+        // raw links
+        try {
+            $lst = $this->_lensDef->getTarget($lensURI, new
+                    LibRDF_URINode(FRESNEL."showProperties"));
+        } catch (LibRDF_LookupError $ex) {
+            return;
+        }
         $props = $this->_unlist($lst);
         foreach ($props as $prop) {
             if ($prop instanceof LibRDF_BlankNode) {
@@ -323,8 +336,14 @@ class Lens {
      * @return string
      */
     protected function _constructQuery($resourceURI, $lensURI, $parentQuery = "") {
-        $lst = $this->_lensDef->getTarget($lensURI, new
-                LibRDF_URINode(FRESNEL."showProperties"));
+        // sublens with no properties to show are
+        // raw links
+        try {
+            $lst = $this->_lensDef->getTarget($lensURI, new
+                    LibRDF_URINode(FRESNEL."showProperties"));
+        } catch (LibRDF_LookupError $ex) {
+            return;
+        }
         $props = $this->_unlist($lst);
         $ret = $parentQuery;
         $ret .= $this->_nodeToString($resourceURI) . " ?p ?o .\n";

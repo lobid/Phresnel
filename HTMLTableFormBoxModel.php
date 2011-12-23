@@ -224,6 +224,23 @@ class HTMLTableFormBoxModel extends AbstractBoxModel {
         } catch (LibRDF_LookupError $e) {
             $domain = null;
         }
+        // sublens with no properties to show are
+        // raw links
+        try {
+            $lst = $this->_lensDef->getTarget($sublens, new
+                    LibRDF_URINode(FRESNEL."showProperties"));
+        } catch (LibRDF_LookupError $ex) {
+            foreach ($values as $value) {
+                $val = $value->getObject();
+                $val = substr($val, 1, strlen($val) - 2);
+                $rs .= "<tr>";
+                $rs .= "<td class=\"plabel\">$label</td>";
+                $rs .= sprintf('<td><input type="text" name="content[%1$s][object]%2$s[]" value="%3$s" /></td>',
+                        $r, $link, $val);
+                $rs .= "</tr>";
+            }
+            return $rs;
+        }
         try {
             // Query for options
             $type = new LibRDF_URINode(RDF."type");
@@ -231,8 +248,6 @@ class HTMLTableFormBoxModel extends AbstractBoxModel {
             $l->loadResource(new LibRDF_BlankNode());
             $optModel = $l->getData();
             $options = $optModel->findStatements(null, $type, $domain);
-            $lst = $this->_lensDef->getTarget($sublens, new
-                    LibRDF_URINode(FRESNEL."showProperties"));
             $props = $this->_unlist($lst);
             // List selected options
             $selected = array();
@@ -286,6 +301,7 @@ class HTMLTableFormBoxModel extends AbstractBoxModel {
         } catch(LibRDF_LookupError $e) {
             // Handle empty options, only list existing ones!
             // $this->_logger->logError($e);
+            echo "$link";
         }
         if (!empty($available)) {
             $rs .= '<tr><td colspan="2">';

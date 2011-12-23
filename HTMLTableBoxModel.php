@@ -82,8 +82,16 @@ class HTMLTableBoxModel extends AbstractBoxModel {
         } else {
             $rs = "<table><tr><td class=\"rlabel\" colspan=\"2\"><span>$resourceURI</span></td></tr>";
         }
-        $lst = $this->_lensDef->getTarget($lensURI, new
+        // sublens with no properties to show are
+        // raw links
+        try {
+            $lst = $this->_lensDef->getTarget($lensURI, new
                     LibRDF_URINode(FRESNEL."showProperties"));
+        } catch (LibRDF_LookupError $ex) {
+            $l = substr($resourceURI, 1, strlen($resourceURI) - 2);
+            return "<a href=\"$l\">$l</a>";
+            return;
+        }
         $props = $this->_unlist($lst);
         foreach ($props as $prop) {
             if ($prop instanceof LibRDF_BlankNode) {
