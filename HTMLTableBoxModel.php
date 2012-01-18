@@ -126,7 +126,10 @@ class HTMLTableBoxModel extends AbstractBoxModel {
         $values = $this->_data->findStatements($resourceURI, $link, null);
         $rs = '';
         foreach ($values as $val) {
-            $rs .= "<tr><td class=\"plabel\">$label</td><td rel=\"$pns:$pname\">";
+            $l = substr($link, 1, strlen($link) - 2);
+            $rs .= "<tr><td class=\"plabel\">";
+            $rs .= "<a href=\"$l\">$label</a>";
+            $rs .= "</td><td rel=\"$pns:$pname\">";
             $child = $val->getObject();
             $c = substr($child, 1, strlen($child) - 2);
             $rs .= $this->_display($sublens, $child);
@@ -153,7 +156,10 @@ class HTMLTableBoxModel extends AbstractBoxModel {
             $label = "$prop";
         }
         foreach ($values as $val) {
-            $rs .= "<tr><td class=\"plabel\">$label</td><td property=\"$pns:$pname\">";
+            $l = substr($prop, 1, strlen($prop) - 2);
+            $rs .= "<tr><td class=\"plabel\">";
+            $rs .= "<a href=\"$l\">$label</a>";
+            $rs .= "</td><td property=\"$pns:$pname\">";
             $rs .= htmlspecialchars($val->getObject());
             $rs .= "</td></tr>";
         }
