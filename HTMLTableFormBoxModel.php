@@ -22,7 +22,7 @@
 /**
  * Render a resource as an HTML Form.
  */
-class HTMLTableFormBoxModel extends AbstractBoxModel {
+class HTMLTableFormBoxModel extends AbstractFormBoxModel {
 
     /**
      * Wrap a form for a resource.
@@ -230,14 +230,22 @@ class HTMLTableFormBoxModel extends AbstractBoxModel {
             $lst = $this->_lensDef->getTarget($sublens, new
                     LibRDF_URINode(FRESNEL."showProperties"));
         } catch (LibRDF_LookupError $ex) {
-            foreach ($values as $value) {
-                $val = $value->getObject();
-                $val = substr($val, 1, strlen($val) - 2);
+            if ($values->current() === null) {
                 $rs .= "<tr>";
                 $rs .= "<td class=\"plabel\">$label</td>";
-                $rs .= sprintf('<td><input type="text" name="content[%1$s][object]%2$s[]" value="%3$s" /></td>',
-                        $r, $link, $val);
+                $rs .= sprintf('<td><input type="text" name="content[%1$s][object]%2$s[]" /></td>',
+                        $r, $link);
                 $rs .= "</tr>";
+            } else {
+                foreach ($values as $value) {
+                    $val = $value->getObject();
+                    $val = substr($val, 1, strlen($val) - 2);
+                    $rs .= "<tr>";
+                    $rs .= "<td class=\"plabel\">$label</td>";
+                    $rs .= sprintf('<td><input type="text" name="content[%1$s][object]%2$s[]" value="%3$s" /></td>',
+                            $r, $link, $val);
+                    $rs .= "</tr>";
+                }
             }
             return $rs;
         }

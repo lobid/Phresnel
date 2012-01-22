@@ -22,6 +22,8 @@
 require_once(dirname(__FILE__) . '/lib/LibRDF/LibRDF/LibRDF.php');
 require_once(dirname(__FILE__) . '/lib/KLogger/src/KLogger.php');
 require_once(dirname(__FILE__) . '/Lens.php');
+require_once(dirname(__FILE__) . '/AbstractBoxModel.php');
+require_once(dirname(__FILE__) . '/AbstractFormBoxModel.php');
 require_once(dirname(__FILE__) . '/HTMLTableBoxModel.php');
 require_once(dirname(__FILE__) . '/HTMLTableFormBoxModel.php');
 require_once(dirname(__FILE__) . '/RemoteSPARQLEndpoint.php');
