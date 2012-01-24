@@ -73,6 +73,33 @@ class HTMLTableBoxModel extends AbstractBoxModel {
         } catch (LibRDF_LookupError $e) {
             $domain = false;
         }
+        // sublens with no properties to show are
+        // raw links
+        try {
+            $lst = $this->_lensDef->getTarget($lensURI, new
+                    LibRDF_URINode(FRESNEL."showProperties"));
+        } catch (LibRDF_LookupError $ex) {
+            return "<a href=\"$r\">$r</a>";
+        }
+        $props = $this->_unlist($lst);
+        try {
+            $purpose = $this->_lensDef->getTarget($lensURI, new
+                    LibRDF_URINode(FRESNEL."purpose"));
+        } catch(LibRDF_LookupError $e) {
+            $purpose = null;
+        }
+        if ($purpose and $purpose->isEqual(new LibRDF_URINode(LM."linkLens"))) {
+            $labelVals = array();
+            foreach ($props as $prop) {
+                if ($prop instanceof LibRDF_URINode) {
+                    try {
+                        $labelVals[] = $this->_data->getTarget($resourceURI, $prop);
+                    } catch (LibRDF_LookupError $e) {
+                    }
+                }
+            }
+            return "<a href=\"$r\">" . implode(', ', $labelVals) . "</a>";
+        }
         if (substr($r, 0, 1) !== 'r' and $domain) {
             $rs = "<table about=\"$r\" typeof=\"$dns:$dname\"><tr><td class=\"rlabel\" colspan=\"2\"><a href=\"$r\">$resourceURI</a></td></tr>";
         } else if (substr($r, 0, 1) !== 'r') {
@@ -82,17 +109,6 @@ class HTMLTableBoxModel extends AbstractBoxModel {
         } else {
             $rs = "<table><tr><td class=\"rlabel\" colspan=\"2\"><span>$resourceURI</span></td></tr>";
         }
-        // sublens with no properties to show are
-        // raw links
-        try {
-            $lst = $this->_lensDef->getTarget($lensURI, new
-                    LibRDF_URINode(FRESNEL."showProperties"));
-        } catch (LibRDF_LookupError $ex) {
-            $l = substr($resourceURI, 1, strlen($resourceURI) - 2);
-            return "<a href=\"$l\">$l</a>";
-            return;
-        }
-        $props = $this->_unlist($lst);
         foreach ($props as $prop) {
             if ($prop instanceof LibRDF_BlankNode) {
                 $rs .= $this->_subdisplay($resourceURI, $prop);
