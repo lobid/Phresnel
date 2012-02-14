@@ -169,11 +169,16 @@ class HTMLTableBoxModel extends AbstractBoxModel {
             $format = $this->_lensDef->getSource(new LibRDF_URINode(FRESNEL."propertyFormatDomain"), $prop);
             $label = $this->_lensDef->getTarget($format, new LibRDF_URINode(FRESNEL."label"));
         } catch(LibRDF_LookupError $e) {
+            $format = null;
             $label = "$prop";
         }
-        try {
-            $format_value = $this->_lensDef->getTarget($format, new LibRDF_URINode(FRESNEL."value"));
-        } catch(LibRDF_LookupError $e) {
+        if ($format) {
+            try {
+                $format_value = $this->_lensDef->getTarget($format, new LibRDF_URINode(FRESNEL."value"));
+            } catch(LibRDF_LookupError $e) {
+                $format_value = null;
+            }
+        } else {
             $format_value = null;
         }
         foreach ($values as $val) {
