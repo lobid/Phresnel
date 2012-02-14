@@ -98,7 +98,7 @@ class HTMLTableBoxModel extends AbstractBoxModel {
                     }
                 }
             }
-            return "<a href=\"$r\">" . implode(', ', $labelVals) . "</a>";
+            return "<a href=\"$r\">" . htmlspecialchars(implode(', ', $labelVals)) . "</a>";
         }
         if (substr($r, 0, 1) !== 'r' and $domain) {
             $rs = "<table about=\"$r\" typeof=\"$dns:$dname\"><tr><td class=\"rlabel\" colspan=\"2\"><a href=\"$r\">$resourceURI</a></td></tr>";
