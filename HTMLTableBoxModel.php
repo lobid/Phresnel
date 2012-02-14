@@ -185,12 +185,13 @@ class HTMLTableBoxModel extends AbstractBoxModel {
             $l = substr($prop, 1, strlen($prop) - 2);
             $rs .= "<tr><td class=\"plabel\">";
             $rs .= "<a href=\"$l\">$label</a>";
-            $rs .= "</td><td property=\"$pns:$pname\">";
             if ($format_value and $format_value->isEqual(new LibRDF_URINode(FRESNEL."image"))) {
+                $rs .= "</td><td rel=\"$pns:$pname\">";
                 $imgURI = $val->getObject();
                 $imgURI = substr($imgURI, 1, strlen($imgURI) - 2);
                 $rs .= "<img src=\"" . $imgURI . "\" />";
             } else {
+                $rs .= "</td><td property=\"$pns:$pname\">";
                 $rs .= htmlspecialchars($val->getObject());
             }
             $rs .= "</td></tr>";
