@@ -100,14 +100,14 @@ class HTMLTableBoxModel extends AbstractBoxModel {
             }
             return "<a href=\"$r\">" . implode(', ', $labelVals) . "</a>";
         }
-        if (substr($r, 0, 1) !== 'r' and $domain) {
-            $rs = "<table about=\"$r\" typeof=\"$dns:$dname\"><tr><td class=\"rlabel\" colspan=\"2\"><a href=\"$r\">$resourceURI</a></td></tr>";
-        } else if (substr($r, 0, 1) !== 'r') {
-            $rs = "<table about=\"$r\"><tr><td class=\"rlabel\" colspan=\"2\"><a href=\"$r\">$resourceURI</a></td></tr>";
+        if ($resourceURI instanceof LibRDF_URINode and $domain) {
+            $rs = "<table about=\"$r\" typeof=\"$dns:$dname\"><tr><td class=\"rlabel\" colspan=\"2\"><a href=\"$r\">$r</a></td></tr>";
+        } else if ($resourceURI instanceof LibRDF_URINode) {
+            $rs = "<table about=\"$r\"><tr><td class=\"rlabel\" colspan=\"2\"><a href=\"$r\">$r</a></td></tr>";
         } else if ($domain) {
-            $rs = "<table typeof=\"$dns:$dname\"><tr><td class=\"rlabel\" colspan=\"2\"><span>$resourceURI</span></td></tr>";
+            $rs = "<table typeof=\"$dns:$dname\"><tr><td class=\"rlabel\" colspan=\"2\"><span>$r</span></td></tr>";
         } else {
-            $rs = "<table><tr><td class=\"rlabel\" colspan=\"2\"><span>$resourceURI</span></td></tr>";
+            $rs = "<table><tr><td class=\"rlabel\" colspan=\"2\"><span>$r</span></td></tr>";
         }
         foreach ($props as $prop) {
             if ($prop instanceof LibRDF_BlankNode) {
