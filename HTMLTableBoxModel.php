@@ -98,7 +98,7 @@ class HTMLTableBoxModel extends AbstractBoxModel {
                     }
                 }
             }
-            return "<a href=\"$r\">" . implode(', ', $labelVals) . "</a>";
+            return "<a href=\"$r\">" . htmlspecialchars(implode(', ', $labelVals)) . "</a>";
         }
         if ($resourceURI instanceof LibRDF_URINode and $domain) {
             $rs = "<table about=\"$r\" typeof=\"$dns:$dname\"><tr><td class=\"rlabel\" colspan=\"2\"><a href=\"$r\">$r</a></td></tr>";
@@ -169,14 +169,31 @@ class HTMLTableBoxModel extends AbstractBoxModel {
             $format = $this->_lensDef->getSource(new LibRDF_URINode(FRESNEL."propertyFormatDomain"), $prop);
             $label = $this->_lensDef->getTarget($format, new LibRDF_URINode(FRESNEL."label"));
         } catch(LibRDF_LookupError $e) {
+            $format = null;
             $label = "$prop";
+        }
+        if ($format) {
+            try {
+                $format_value = $this->_lensDef->getTarget($format, new LibRDF_URINode(FRESNEL."value"));
+            } catch(LibRDF_LookupError $e) {
+                $format_value = null;
+            }
+        } else {
+            $format_value = null;
         }
         foreach ($values as $val) {
             $l = substr($prop, 1, strlen($prop) - 2);
             $rs .= "<tr><td class=\"plabel\">";
             $rs .= "<a href=\"$l\">$label</a>";
-            $rs .= "</td><td property=\"$pns:$pname\">";
-            $rs .= htmlspecialchars($val->getObject());
+            if ($format_value and $format_value->isEqual(new LibRDF_URINode(FRESNEL."image"))) {
+                $rs .= "</td><td rel=\"$pns:$pname\">";
+                $imgURI = $val->getObject();
+                $imgURI = substr($imgURI, 1, strlen($imgURI) - 2);
+                $rs .= "<img src=\"" . $imgURI . "\" />";
+            } else {
+                $rs .= "</td><td property=\"$pns:$pname\">";
+                $rs .= htmlspecialchars($val->getObject());
+            }
             $rs .= "</td></tr>";
         }
         return $rs;
