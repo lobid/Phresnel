@@ -66,14 +66,18 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
         } catch (LibRDF_LookupError $e) {
             $d = null;
         }
-        $r = substr($resourceURI, 1, strlen($resourceURI) - 2);
+        if ($resourceURI instanceOf LibRDF_BlankNode) {
+            $r = substr($resourceURI, 2);
+        } else {
+            $r = substr($resourceURI, 1, -1);
+        }
         $rs = '';
         $rs .= "<table class=\"resource\">";
         $lst = $this->_lensDef->getTarget($lensURI, new
                 LibRDF_URINode(FRESNEL."showProperties"));
         $props = $this->_unlist($lst);
         $rs .= "<tr><td class=\"rlabel\" colspan=\"2\">";
-        $rs .= "<span>$resourceURI</span>";
+        $rs .= "<span>$r</span>";
         if ($domain) {
             $rs .= sprintf('<input type="hidden" name="content[%1$s][object][%2$s][]" value="%3$s" />', $r, RDF."type", $d);
         }
@@ -98,7 +102,12 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
      * @return string
      */
     protected function _input(LibRDF_Node $resourceURI, LibRDF_URINode $prop) {
-        $r = substr($resourceURI, 1, strlen($resourceURI) - 2);
+        if ($resourceURI instanceOf LibRDF_BlankNode) {
+            $r = substr($resourceURI, 2);
+        } else {
+            $r = substr($resourceURI, 1, -1);
+        }
+        $p = substr($prop, 1, -1);
         $values = $this->_data->findStatements($resourceURI, $prop, null);
         $rs = '';
         try {
@@ -108,21 +117,21 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
             $label = $this->_lensDef->getTarget($format, new
                     LibRDF_URINode(FRESNEL."label"));
         } catch(LibRDF_LookupError $e) {
-            $label = "$prop";
+            $label = htmlspecialchars("$prop");
         }
         if ($values->current() === null) {
             $rs .= "<tr>";
             $rs .= "<td class=\"plabel\">$label</td>";
-            $rs .= sprintf('<td><input type="text" name="content[%1$s][data]%2$s[]" /></td>',
-                    $r, $prop);
+            $rs .= sprintf('<td><input type="text" name="content[%1$s][data][%2$s][]" /></td>',
+                    $r, $p);
             $rs .= "</tr>";
         } else {
             foreach ($values as $val) {
                 $rs .= "<tr>";
                 $rs .= "<td class=\"plabel\">$label</td>";
                 $escapedVal = htmlspecialchars($val->getObject());
-                $rs .= sprintf( '<td><input type="text" name="content[%1$s][data]%2$s[]" value="%3$s" /></td>',
-                        $r, $prop, $escapedVal);
+                $rs .= sprintf( '<td><input type="text" name="content[%1$s][data][%2$s][]" value="%3$s" /></td>',
+                        $r, $p, $escapedVal);
                 $rs .= "</tr>";
             }
         }
@@ -137,11 +146,16 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
      * @return string
      */
     protected function _subform(LibRDF_Node $resourceURI, LibRDF_Node $prop) {
-        $r = substr($resourceURI, 1, strlen($resourceURI) - 2);
+        if ($resourceURI instanceOf LibRDF_BlankNode) {
+            $r = substr($resourceURI, 2);
+        } else {
+            $r = substr($resourceURI, 1, -1);
+        }
         $sublens = $this->_lensDef->getTarget($prop, new
                 LibRDF_URINode(FRESNEL."sublens"));
         $link = $this->_lensDef->getTarget($prop, new
                 LibRDF_URINode(FRESNEL."property"));
+        $link_s = substr($link, 1, -1);
         try {
             $format = $this->_lensDef->getSource(new
                     LibRDF_URINode(FRESNEL."propertyFormatDomain"), $link);
@@ -166,30 +180,30 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
                         LibRDF_URINode(LM."optional", "true"));
             } catch (LibRDF_LookupError $e) {
                 $child = new LibRDF_BlankNode();
-                $c = substr($child, 1, strlen($child) - 2);
-                $rem = sprintf('<input type="submit" class="remove" name="remove[%1$s][object]%2$s[%3$s]" value="X" />', $r, $link, $c);
+                $c = substr($child, 2);
+                $rem = sprintf('<input type="submit" class="remove" name="remove[%1$s][object][%2$s][%3$s]" value="X" />', $r, $link_s, $c);
                 // Recursively render subforms
                 $rs .= "<tr><td class=\"plabel\">$label";
-                $rs .= sprintf('<input type="hidden" name="content[%1$s][object]%2$s[]" value="%3$s" /></td>',
-                        $r, $link, $c);
+                $rs .= sprintf('<input type="hidden" name="content[%1$s][object][%2$s][]" value="%3$s" /></td>',
+                        $r, $link_s, $c);
                 $rs .= '<td>';
                 $rs .= $this->_form($sublens, $child, $rem);
                 $rs .= '</td></tr>';
             }
-            $rs .= sprintf('<tr><td colspan="2"><input type="submit" class="add" name="add[%1$s][object]%2$s" value="%3$s hinzufügen" /></td></tr>', $r, $link, $label);
+            $rs .= sprintf('<tr><td colspan="2"><input type="submit" class="add" name="add[%1$s][object][%2$s]" value="%3$s hinzufügen" /></td></tr>', $r, $link_s, $label);
         } else {
             foreach ($values as $val) {
                 $child = $val->getObject();
-                $c = substr($child, 1, strlen($child) - 2);
+                $c = substr($child, 2);
                 $rs .= "<tr><td class=\"plabel\">$label";
-                $rs .= sprintf('<input type="hidden" name="content[%1$s][object]%2$s[]" value="%3$s" /></td>',
-                        $r, $link, $c);
+                $rs .= sprintf('<input type="hidden" name="content[%1$s][object][%2$s][]" value="%3$s" /></td>',
+                        $r, $link_s, $c);
                 $rs .= '<td>';
-                $rem = sprintf('<input type="submit" class="remove" name="remove[%1$s][object]%2$s[%3$s]" value="X" />', $r, $link, $c);
+                $rem = sprintf('<input type="submit" class="remove" name="remove[%1$s][object][%2$s][%3$s]" value="X" />', $r, $link_s, $c);
                 $rs .= $this->_form($sublens, $child, $rem);
                 $rs .= '</td></tr>';
             }
-            $rs .= sprintf('<tr><td colspan="2"><input type="submit" class="add" name="add[%1$s][object]%2$s" value="%3$s hinzufügen" /></td></tr>', $r, $link, $label);
+            $rs .= sprintf('<tr><td colspan="2"><input type="submit" class="add" name="add[%1$s][object][%2$s]" value="%3$s hinzufügen" /></td></tr>', $r, $link_s, $label);
         }
         return $rs;
     }
@@ -208,15 +222,20 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
             LibRDF_URINode $link,
             LibRDF_Node $sublens,
             $values) {
+        $link_s = substr($link, 1, -1);
         try {
             $format = $this->_lensDef->getSource(new
                     LibRDF_URINode(FRESNEL."propertyFormatDomain"), $link);
             $label = $this->_lensDef->getTarget($format, new LibRDF_URINode(FRESNEL."label"));
         } catch(LibRDF_LookupError $e) {
-            $label = "$link";
+            $label = htmlspecialchars("$link");
         }
         $rs = "";
-        $r = substr($resourceURI, 1, strlen($resourceURI) - 2);
+        if ($resourceURI instanceOf LibRDF_BlankNode) {
+            $r = substr($resourceURI, 2);
+        } else {
+            $r = substr($resourceURI, 1, -1);
+        }
         try {
             $domain = $this->_lensDef->getTarget($sublens, new
                     LibRDF_URINode(FRESNEL."classLensDomain"));
@@ -233,8 +252,8 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
             if ($values->current() === null) {
                 $rs .= "<tr>";
                 $rs .= "<td class=\"plabel\">$label</td>";
-                $rs .= sprintf('<td><input type="text" name="content[%1$s][object]%2$s[]" /></td>',
-                        $r, $link);
+                $rs .= sprintf('<td><input type="text" name="content[%1$s][object][%2$s][]" /></td>',
+                        $r, $link_s);
                 $rs .= "</tr>";
             } else {
                 foreach ($values as $value) {
@@ -242,8 +261,8 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
                     $val = substr($val, 1, strlen($val) - 2);
                     $rs .= "<tr>";
                     $rs .= "<td class=\"plabel\">$label</td>";
-                    $rs .= sprintf('<td><input type="text" name="content[%1$s][object]%2$s[]" value="%3$s" /></td>',
-                            $r, $link, $val);
+                    $rs .= sprintf('<td><input type="text" name="content[%1$s][object][%2$s][]" value="%3$s" /></td>',
+                            $r, $link_s, $val);
                     $rs .= "</tr>";
                 }
             }
@@ -278,9 +297,9 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
                 $rs .= $label;
                 $rs .= '</td><td>';
                 $rs .= implode($labelVals, ", ");
-                $rs .= sprintf('<input type="hidden" name="content[%1$s][object]%2$s[]" value="%3$s" />',
-                        $r, $link, $val);
-                $rs .= sprintf('<input type="submit" class="remove" name="remove[%1$s][object]%2$s[%3$s]" value="X" />', $r, $link, $val);
+                $rs .= sprintf('<input type="hidden" name="content[%1$s][object][%2$s][]" value="%3$s" />',
+                        $r, $link_s, $val);
+                $rs .= sprintf('<input type="submit" class="remove" name="remove[%1$s][object][%2$s][%3$s]" value="X" />', $r, $link_s, $val);
                 $rs .= '</td>';
                 $rs .= '</tr>';
                 $selected[] = $val;
@@ -313,7 +332,7 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
         }
         if (!empty($available)) {
             $rs .= '<tr><td colspan="2">';
-            $rs .= sprintf('<select name="link[%1$s][object]%2$s">', $r, $link);
+            $rs .= sprintf('<select name="link[%1$s][object][%2$s]">', $r, $link_s);
             foreach ($available as $u => $l) {
                 $rs .= "<option value=\"$u\">";
                 $rs .= $l;
@@ -321,7 +340,7 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
             }
             $rs .= '</select>';
             $rs .= '</td></tr>';
-            $rs .= sprintf('<tr><td colspan="2"><input type="submit" class="add" name="add[%1$s][object]%2$s" value="%3$s hinzufügen" /></td></tr>', $r, $link, $label);
+            $rs .= sprintf('<tr><td colspan="2"><input type="submit" class="add" name="add[%1$s][object][%2$s]" value="%3$s hinzufügen" /></td></tr>', $r, $link_s, $label);
         }
         return $rs;
     }

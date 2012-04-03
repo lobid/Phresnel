@@ -388,11 +388,10 @@ class Lens {
      * @return string
      */
     protected function _nodeToString(LibRDF_Node $node) {
-        $r = substr($node, 1, strlen($node) - 2);
         if ($node instanceof LibRDF_URINode) {
-            return "<$r>";
+            return "$node";
         } else if ($node instanceof LibRDF_BlankNode) {
-            return "?$r";
+            return '?' . substr($node, 2);
         }
     }
 
