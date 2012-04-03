@@ -79,7 +79,7 @@ class HTMLTableBoxModel extends AbstractBoxModel {
             $lst = $this->_lensDef->getTarget($lensURI, new
                     LibRDF_URINode(FRESNEL."showProperties"));
         } catch (LibRDF_LookupError $ex) {
-            return "<a href=\"$r\">$r</a>";
+            return "<a href=\"" . htmlspecialchars($r) . "\">" . htmlspecialchars($r) . "</a>";
         }
         $props = $this->_unlist($lst);
         try {
@@ -98,7 +98,7 @@ class HTMLTableBoxModel extends AbstractBoxModel {
                     }
                 }
             }
-            return "<a href=\"$r\">" . htmlspecialchars(implode(', ', $labelVals)) . "</a>";
+            return "<a href=\"" . htmlspecialchars($r) ."\">" . htmlspecialchars(implode(', ', $labelVals)) . "</a>";
         }
         if ($resourceURI instanceof LibRDF_URINode and $domain) {
             $rs = "<table about=\"$r\" typeof=\"$dns:$dname\"><tr><td class=\"rlabel\" colspan=\"2\"><a href=\"$r\">$r</a></td></tr>";
