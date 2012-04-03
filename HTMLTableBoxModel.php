@@ -144,7 +144,7 @@ class HTMLTableBoxModel extends AbstractBoxModel {
         foreach ($values as $val) {
             $l = substr($link, 1, strlen($link) - 2);
             $rs .= "<tr><td class=\"plabel\">";
-            $rs .= "<a href=\"$l\">$label</a>";
+            $rs .= "<a href=\"$l\">" . htmlspecialchars($label) . "</a>";
             $rs .= "</td><td rel=\"$pns:$pname\">";
             $child = $val->getObject();
             $c = substr($child, 1, strlen($child) - 2);
@@ -184,7 +184,7 @@ class HTMLTableBoxModel extends AbstractBoxModel {
         foreach ($values as $val) {
             $l = substr($prop, 1, strlen($prop) - 2);
             $rs .= "<tr><td class=\"plabel\">";
-            $rs .= "<a href=\"$l\">$label</a>";
+            $rs .= "<a href=\"$l\">" . htmlspecialchars($label) ."</a>";
             if ($format_value and $format_value->isEqual(new LibRDF_URINode(FRESNEL."image"))) {
                 $rs .= "</td><td rel=\"$pns:$pname\">";
                 $imgURI = $val->getObject();
