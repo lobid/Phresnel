@@ -33,6 +33,7 @@ class RemoteSPARQLEndpoint extends SPARQLEndpoint {
      * @return LibRDF_Model
      */
     protected function _query($query) {
+        $query = urlencode($query);
         $curl_handle = curl_init();
         curl_setopt($curl_handle,
                 CURLOPT_HTTPHEADER,
