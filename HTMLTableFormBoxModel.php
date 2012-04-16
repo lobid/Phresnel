@@ -258,7 +258,7 @@ class HTMLTableFormBoxModel extends AbstractFormBoxModel {
             } else {
                 foreach ($values as $value) {
                     $val = $value->getObject();
-                    $val = substr($val, 1, strlen($val) - 2);
+                    $val = htmlspecialchars(substr($val, 1, strlen($val) - 2));
                     $rs .= "<tr>";
                     $rs .= "<td class=\"plabel\">$label</td>";
                     $rs .= sprintf('<td><input type="text" name="content[%1$s][object][%2$s][]" value="%3$s" /></td>',
