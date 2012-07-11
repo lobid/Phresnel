@@ -161,6 +161,12 @@ class Lens {
         //        $this->_data->serializeStatements(new LibRDF_Serializer("ntriples")));
     }
 
+    public function askResource(LibRDF_Node $uri) {
+        $query = "ASK WHERE { $uri ?p ?o }";
+        $result = $this->_ep->query($query);
+        return ("true" === trim($result)) ? true : false;
+    }
+
     /**
      * Check if all properties required by the lens are
      * available and load linked data if not so.
