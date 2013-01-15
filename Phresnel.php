@@ -63,6 +63,17 @@ class Phresnel {
      */
     protected static $_logger = null;
 
+    /**
+     * Namespace mappings.
+     *
+     * @var array
+     */
+    public static $_namespaces = array();
+
+    public static function registerNamespaces($namespaces) {
+        self::$_namespaces = $namespaces;
+    }
+
     public static function init($conf, KLogger $logger) {
         self::$_logger = $logger;
         $setup = array();
@@ -89,6 +100,7 @@ class Phresnel {
             $model = new LibRDF_Model(new LibRDF_Storage);
             self::$_endpoint = new LocalSPARQLEndpoint($model, $logger);
         }
+        LibRDF_Serializer::setNamespaces(self::$_namespaces);
         $lensGraph = new LibRDF_Model(new LibRDF_Storage());
         $lensGraph->loadStatementsFromURI(new LibRDF_Parser("turtle"), $setup["lensDef"]);
         self::$_lensGraph = $lensGraph;
